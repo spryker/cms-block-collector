@@ -5,27 +5,41 @@
  * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
  */
 
-namespace Spryker\Zed\CmsBlockCollector\Business;
+namespace Spryker\Zed\CmsBlockCollector\Business\Collector;
 
 use Generated\Shared\Transfer\LocaleTransfer;
 use Orm\Zed\Touch\Persistence\SpyTouchQuery;
+use Spryker\Zed\CmsBlockCollector\Dependency\Facade\CmsBlockCollectorToCollectorInterface;
+use Spryker\Zed\Collector\Business\Collector\DatabaseCollectorInterface;
 use Spryker\Zed\Collector\Business\Exporter\Reader\ReaderInterface;
 use Spryker\Zed\Collector\Business\Exporter\Writer\TouchUpdaterInterface;
 use Spryker\Zed\Collector\Business\Exporter\Writer\WriterInterface;
 use Spryker\Zed\Collector\Business\Model\BatchResultInterface;
-use Spryker\Zed\Kernel\Business\AbstractFacade;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @method \Spryker\Zed\CmsBlockCollector\Business\CmsBlockCollectorBusinessFactory getFactory()
- */
-class CmsBlockCollectorFacade extends AbstractFacade implements CmsBlockCollectorFacadeInterface
+class CmsBlockCollectorRunner implements CmsBlockCollectorRunnerInterface
 {
     /**
-     * {@inheritDoc}
-     *
-     * @api
-     *
+     * @var \Spryker\Zed\Collector\Business\Collector\DatabaseCollectorInterface
+     */
+    protected $collector;
+
+    /**
+     * @var \Spryker\Zed\CmsBlockCollector\Dependency\Facade\CmsBlockCollectorToCollectorInterface
+     */
+    protected $collectorFacade;
+
+    /**
+     * @param \Spryker\Zed\Collector\Business\Collector\DatabaseCollectorInterface $collector
+     * @param \Spryker\Zed\CmsBlockCollector\Dependency\Facade\CmsBlockCollectorToCollectorInterface $collectorFacade
+     */
+    public function __construct(DatabaseCollectorInterface $collector, CmsBlockCollectorToCollectorInterface $collectorFacade)
+    {
+        $this->collector = $collector;
+        $this->collectorFacade = $collectorFacade;
+    }
+
+    /**
      * @param \Orm\Zed\Touch\Persistence\SpyTouchQuery $baseQuery
      * @param \Generated\Shared\Transfer\LocaleTransfer $localeTransfer
      * @param \Spryker\Zed\Collector\Business\Model\BatchResultInterface $result
@@ -36,7 +50,7 @@ class CmsBlockCollectorFacade extends AbstractFacade implements CmsBlockCollecto
      *
      * @return void
      */
-    public function runStorageCmsBlockCollector(
+    public function run(
         SpyTouchQuery $baseQuery,
         LocaleTransfer $localeTransfer,
         BatchResultInterface $result,
@@ -44,17 +58,16 @@ class CmsBlockCollectorFacade extends AbstractFacade implements CmsBlockCollecto
         WriterInterface $dataWriter,
         TouchUpdaterInterface $touchUpdater,
         OutputInterface $output
-    ) {
-        $this->getFactory()
-            ->createCmsBlockCollectorRunner()
-            ->run(
-                $baseQuery,
-                $localeTransfer,
-                $result,
-                $dataReader,
-                $dataWriter,
-                $touchUpdater,
-                $output
-            );
+    ): void {
+        $this->collectorFacade->runCollector(
+            $this->collector,
+            $baseQuery,
+            $localeTransfer,
+            $result,
+            $dataReader,
+            $dataWriter,
+            $touchUpdater,
+            $output
+        );
     }
 }
