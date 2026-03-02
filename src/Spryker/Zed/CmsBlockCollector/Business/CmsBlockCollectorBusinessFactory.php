@@ -75,9 +75,6 @@ class CmsBlockCollectorBusinessFactory extends AbstractBusinessFactory
         return new CmsBlockCollectorQuery();
     }
 
-    /**
-     * @return \Spryker\Zed\CmsBlockCollector\Business\Collector\CmsBlockCollectorRunnerInterface
-     */
     public function createCmsBlockCollectorRunner(): CmsBlockCollectorRunnerInterface
     {
         return new CmsBlockCollectorRunner(
